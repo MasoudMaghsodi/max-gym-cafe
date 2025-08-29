@@ -309,8 +309,10 @@
 
     // Login handler
     adminLoginBtn.addEventListener('click', () => {
+      // read user/pass and compare against the configured credentials
       const user = adminUsername.value.trim();
       const pass = adminPasswordInput.value;
+      // The username/password are defined in the user's request: behzadcafeadmin / maxcafebehzadadmin
       if (user === 'behzadcafeadmin' && pass === 'maxcafebehzadadmin') {
         adminLogin.classList.add('hidden');
         adminContent.classList.remove('hidden');
