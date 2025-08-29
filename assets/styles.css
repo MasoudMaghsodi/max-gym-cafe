@@ -1,0 +1,195 @@
+/*
+ * Custom styles for the Max Gym Cafe project.
+ * This file defines reusable classes and animations to complement the Tailwind
+ * utility classes. The design emphasises a dark/light palette with coloured
+ * accents. Animations are subtle and respect the user's reduced motion
+ * preferences.
+ */
+
+:root {
+  color-scheme: dark light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Vazirmatn', system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+    Cantarell, 'Noto Sans', 'Helvetica Neue', Arial;
+}
+
+/* Custom scrollbar for a polished look */
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+/* Filter chips styling */
+.chip {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(6px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(17, 197, 198, 0.15);
+}
+
+.chip.active {
+  outline: 2px solid #11c5c666;
+  background: #11c5c61a;
+}
+
+/* Modal backdrop */
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* Discount styling */
+.line-through-thin {
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 2px;
+}
+
+/* Skeleton loading animation for images */
+.skeleton {
+  background: linear-gradient(90deg, #eee, #f5f5f5, #eee);
+  background-size: 200% 100%;
+  animation: sk 1.2s infinite;
+}
+
+@keyframes sk {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Maker badge positioning */
+.badge-maker {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 60;
+}
+
+/* Reveal animations for scroll-triggered effects */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s ease,
+    transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Variation: fade only (no translation) */
+.reveal.fade {
+  transform: none;
+}
+
+/* Variation: scale effect */
+.reveal.scale {
+  transform: scale(0.98);
+}
+
+.reveal.scale.revealed {
+  transform: scale(1);
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.25s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(17, 197, 198, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+/* Carousel styling */
+.carousel-track {
+  display: flex;
+  gap: 16px;
+  will-change: transform;
+}
+
+.carousel-card {
+  min-width: 230px;
+  max-width: 230px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transform-origin: center;
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.35s ease;
+}
+
+.carousel-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.carousel-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.45);
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.carousel-dot.active {
+  width: 22px;
+  background: #11c5c6;
+}
+
+.carousel-progress {
+  height: 3px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.carousel-progress > span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: #23D997;
+  transition: width 0.1s linear;
+}
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
