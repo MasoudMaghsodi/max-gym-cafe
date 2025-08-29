@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Max Gym Cafe | منوی باشگاه</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom scrollbar for WebKit */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background-color: #888;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-track {
+      background-color: #f1f1f1;
+    }
+    .modal {
+      backdrop-filter: blur(4px);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Header -->
+  <header class="bg-gradient-to-l from-purple-700 via-fuchsia-600 to-pink-500 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6 flex items-center justify-between">
+      <h1 class="text-3xl font-extrabold tracking-widest">Max Gym Cafe</h1>
+      <nav class="space-x-4">
+        <a href="#" class="text-white hover:underline">خانه</a>
+        <a href="#admin" class="text-white hover:underline">پنل مدیریت</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-8">
+    <!-- Search and Filters -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
+      <div class="flex-grow relative">
+        <input id="searchInput" type="text" placeholder="جستجو..." class="w-full rounded-full py-2 px-4 pr-10 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600" />
+        <span class="absolute right-3 top-2.5 text-gray-400">
+          🔍
+        </span>
+      </div>
+      <div class="flex space-x-2 md:space-x-4 rtl:space-x-reverse mt-2 md:mt-0">
+        <button data-filter="همه" class="filter-btn bg-purple-600 text-white py-2 px-4 rounded-full hover:bg-purple-700">همه</button>
+        <button data-filter="نوشیدنی‌های گرم" class="filter-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-full hover:bg-gray-300">نوشیدنی‌های گرم</button>
+        <button data-filter="نوشیدنی‌های سرد" class="filter-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-full hover:bg-gray-300">نوشیدنی‌های سرد</button>
+        <button data-filter="اسموتی‌ها" class="filter-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-full hover:bg-gray-300">اسموتی‌ها</button>
+        <button data-filter="غذا" class="filter-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-full hover:bg-gray-300">غذا</button>
+      </div>
+    </div>
+
+    <!-- Menu Grid -->
+    <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+  </main>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-11/12 md:w-2/3 lg:w-1/2 p-6 overflow-y-auto max-h-[80vh] relative">
+      <button id="closeModal" class="absolute top-3 left-3 bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-300">✕</button>
+      <h2 id="modalTitle" class="text-2xl font-bold mb-4"></h2>
+      <p id="modalPrice" class="text-lg font-semibold mb-2 text-purple-700"></p>
+      <p id="modalDescription" class="mb-4"></p>
+      <p><span class="font-bold">مواد تشکیل‌دهنده:</span> <span id="modalIngredients"></span></p>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" class="hidden">
+    <div class="bg-white fixed inset-0 z-40 flex items-center justify-center">
+      <div class="bg-gray-100 rounded-lg shadow-xl w-11/12 md:w-3/4 lg:w-2/3 p-6 overflow-y-auto max-h-[90vh]">
+        <h2 class="text-2xl font-bold mb-4 text-center">پنل مدیریت منو</h2>
+        <div id="adminLogin" class="mb-6">
+          <p class="mb-2">رمز عبور:</p>
+          <input id="adminPassword" type="password" class="w-full rounded-md p-2 border" />
+          <button id="adminLoginBtn" class="mt-3 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">ورود</button>
+        </div>
+        <div id="adminContent" class="hidden">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-xl font-semibold">فهرست محصولات</h3>
+            <button id="downloadBtn" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">دانلود JSON</button>
+          </div>
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-3 py-2 text-xs font-medium text-gray-500">دسته</th>
+                <th class="px-3 py-2 text-xs font-medium text-gray-500">نام</th>
+                <th class="px-3 py-2 text-xs font-medium text-gray-500">قیمت</th>
+                <th class="px-3 py-2 text-xs font-medium text-gray-500">توضیحات</th>
+                <th class="px-3 py-2 text-xs font-medium text-gray-500">مواد تشکیل‌دهنده</th>
+                <th class="px-3 py-2 text-xs font-medium text-gray-500">حذف</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody" class="divide-y divide-gray-200 text-sm"></tbody>
+          </table>
+          <div class="mt-4">
+            <h4 class="font-semibold mb-2">افزودن محصول جدید</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input id="newCategory" type="text" placeholder="دسته" class="p-2 border rounded" />
+              <input id="newName" type="text" placeholder="نام" class="p-2 border rounded" />
+              <input id="newPrice" type="text" placeholder="قیمت" class="p-2 border rounded" />
+              <input id="newDescription" type="text" placeholder="توضیحات" class="p-2 border rounded" />
+              <input id="newIngredients" type="text" placeholder="مواد تشکیل‌دهنده" class="p-2 border rounded" />
+            </div>
+            <button id="addProductBtn" class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">افزودن</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu Data and Script -->
+  <script>
+    const initialMenuData = [
+      { category: 'نوشیدنی‌های گرم', name: 'اسپرسو', price: '40,000 تومان', description: 'اسپرسو خالص با طعمی قوی و شاداب‌کننده.', ingredients: 'قهوه عربیکا' },
+      { category: 'نوشیدنی‌های گرم', name: 'کاپوچینو', price: '50,000 تومان', description: 'قهوه با شیر بخار داده شده و کف شیر.', ingredients: 'قهوه عربیکا، شیر' },
+      { category: 'نوشیدنی‌های سرد', name: 'آیس لاته', price: '60,000 تومان', description: 'لاته سرد با شیر خنک و شکر.', ingredients: 'قهوه عربیکا، شیر، یخ' },
+      { category: 'نوشیدنی‌های سرد', name: 'موکا یخی', price: '65,000 تومان', description: 'قهوه یخ‌زده با شکلات.', ingredients: 'قهوه عربیکا، شکلات، شیر، یخ' },
+      { category: 'اسموتی‌ها', name: 'اسموتی میوه‌های قرمز', price: '55,000 تومان', description: 'اسموتی انرژی‌بخش شامل توت‌فرنگی و تمشک.', ingredients: 'توت‌فرنگی، تمشک، موز، عسل' },
+      { category: 'اسموتی‌ها', name: 'اسموتی سبز', price: '50,000 تومان', description: 'نوشیدنی سبز با سبزیجات تازه.', ingredients: 'اسفناج، سیب سبز، خیار، آب‌لیمو' },
+      { category: 'غذا', name: 'سالاد پروتئین', price: '80,000 تومان', description: 'سالاد غنی از پروتئین مناسب ورزشکاران.', ingredients: 'مرغ گریل، کاهو، گوجه، تخم‌مرغ آب‌پز' },
+      { category: 'غذا', name: 'ساندویچ تن ماهی', price: '70,000 تومان', description: 'ساندویچ خوشمزه با تن ماهی و سبزیجات.', ingredients: 'تن ماهی، نان گندم، کاهو، گوجه' }
+    ];
+
+    // Load menu data from localStorage if exists
+    let menuData = JSON.parse(localStorage.getItem('menuData')) || initialMenuData;
+
+    const menuGrid = document.getElementById('menuGrid');
+    const searchInput = document.getElementById('searchInput');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const productModal = document.getElementById('productModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalDescription = document.getElementById('modalDescription');
+    const modalIngredients = document.getElementById('modalIngredients');
+
+    let currentFilter = 'همه';
+    let searchQuery = '';
+
+    // Render menu items
+    function renderMenu() {
+      menuGrid.innerHTML = '';
+      const filteredData = menuData.filter(item => {
+        const matchesFilter = currentFilter === 'همه' || item.category === currentFilter;
+        const matchesSearch = item.name.includes(searchQuery) || item.description.includes(searchQuery) || item.ingredients.includes(searchQuery);
+        return matchesFilter && matchesSearch;
+      });
+      filteredData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-lg shadow-sm hover:shadow-md p-4 flex flex-col justify-between cursor-pointer transition transform hover:-translate-y-1';
+        card.innerHTML = `<h3 class="text-lg font-semibold mb-2">${item.name}</h3>
+                          <p class="text-sm text-gray-600 mb-1">${item.price}</p>
+                          <p class="text-xs text-gray-500">${item.description.substring(0, 40)}...</p>`;
+        card.addEventListener('click', () => {
+          modalTitle.textContent = item.name;
+          modalPrice.textContent = item.price;
+          modalDescription.textContent = item.description;
+          modalIngredients.textContent = item.ingredients;
+          productModal.classList.remove('hidden');
+        });
+        menuGrid.appendChild(card);
+      });
+    }
+
+    // Search input
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      renderMenu();
+    });
+
+    // Filter buttons
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => b.classList.remove('bg-purple-600','text-white'));
+        btn.classList.add('bg-purple-600','text-white');
+        currentFilter = btn.dataset.filter;
+        renderMenu();
+      });
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', () => {
+      productModal.classList.add('hidden');
+    });
+
+    // Render initial menu
+    renderMenu();
+
+    /* Admin Panel Logic */
+    const adminPanel = document.getElementById('adminPanel');
+    const adminLogin = document.getElementById('adminLogin');
+    const adminPassword = document.getElementById('adminPassword');
+    const adminLoginBtn = document.getElementById('adminLoginBtn');
+    const adminContent = document.getElementById('adminContent');
+    const adminTableBody = document.getElementById('adminTableBody');
+    const addProductBtn = document.getElementById('addProductBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // Watch for hash change to open admin panel
+    window.addEventListener('hashchange', () => {
+      if (location.hash === '#admin') {
+        adminPanel.classList.remove('hidden');
+      }
+    });
+
+    // Initial check if hash is #admin
+    if (location.hash === '#admin') {
+      adminPanel.classList.remove('hidden');
+    }
+
+    // Login button handler
+    adminLoginBtn.addEventListener('click', () => {
+      const password = adminPassword.value;
+      if (password === 'maxadmin') {
+        adminLogin.classList.add('hidden');
+        adminContent.classList.remove('hidden');
+        populateAdminTable();
+      } else {
+        alert('رمز عبور نادرست است.');
+      }
+    });
+
+    // Populate the admin table
+    function populateAdminTable() {
+      adminTableBody.innerHTML = '';
+      menuData.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="p-2"><input type="text" class="w-full p-1 rounded border" value="${item.category}"></td>
+                         <td class="p-2"><input type="text" class="w-full p-1 rounded border" value="${item.name}"></td>
+                         <td class="p-2"><input type="text" class="w-full p-1 rounded border" value="${item.price}"></td>
+                         <td class="p-2"><input type="text" class="w-full p-1 rounded border" value="${item.description}"></td>
+                         <td class="p-2"><input type="text" class="w-full p-1 rounded border" value="${item.ingredients}"></td>
+                         <td class="p-2 text-center"><button class="delete-btn bg-red-600 text-white rounded px-2 py-1">حذف</button></td>`;
+        adminTableBody.appendChild(row);
+
+        // Delete product
+        row.querySelector('.delete-btn').addEventListener('click', () => {
+          if (confirm('آیا از حذف این محصول مطمئن هستید؟')) {
+            menuData.splice(index, 1);
+            populateAdminTable();
+            renderMenu();
+            localStorage.setItem('menuData', JSON.stringify(menuData));
+          }
+        });
+
+        // Update data on input change
+        const inputs = row.querySelectorAll('input');
+        inputs[0].addEventListener('change', (e) => { menuData[index].category = e.target.value; saveAndRefresh(); });
+        inputs[1].addEventListener('change', (e) => { menuData[index].name = e.target.value; saveAndRefresh(); });
+        inputs[2].addEventListener('change', (e) => { menuData[index].price = e.target.value; saveAndRefresh(); });
+        inputs[3].addEventListener('change', (e) => { menuData[index].description = e.target.value; saveAndRefresh(); });
+        inputs[4].addEventListener('change', (e) => { menuData[index].ingredients = e.target.value; saveAndRefresh(); });
+      });
+    }
+
+    function saveAndRefresh() {
+      localStorage.setItem('menuData', JSON.stringify(menuData));
+      renderMenu();
+    }
+
+    // Add product button
+    addProductBtn.addEventListener('click', () => {
+      const category = document.getElementById('newCategory').value.trim();
+      const name = document.getElementById('newName').value.trim();
+      const price = document.getElementById('newPrice').value.trim();
+      const description = document.getElementById('newDescription').value.trim();
+      const ingredients = document.getElementById('newIngredients').value.trim();
+      if (!category || !name || !price) {
+        alert('حداقل دسته، نام و قیمت را وارد کنید.');
+        return;
+      }
+      const newItem = { category, name, price, description, ingredients };
+      menuData.push(newItem);
+      localStorage.setItem('menuData', JSON.stringify(menuData));
+      populateAdminTable();
+      renderMenu();
+      // Clear inputs
+      document.getElementById('newCategory').value = '';
+      document.getElementById('newName').value = '';
+      document.getElementById('newPrice').value = '';
+      document.getElementById('newDescription').value = '';
+      document.getElementById('newIngredients').value = '';
+    });
+
+    // Download JSON file
+    downloadBtn.addEventListener('click', () => {
+      const dataStr = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(menuData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      const date = new Date().toISOString().slice(0, 10);
+      downloadAnchor.setAttribute('download', `menu_${date}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    });
+  </script>
+</body>
+</html>
