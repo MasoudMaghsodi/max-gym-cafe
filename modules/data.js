@@ -1,140 +1,55 @@
-// Data module for loading and supplying the menu data.
-// Attempts to load from menu.json, then from localStorage, falling back to
-// built-in defaults. Exported defaultMenu can be used for resets or tests.
+// Only localStorage. No menu.json, no fake remote.
+// First visit seeds sample data; next reads/writes from storage.
 
-// Built-in default menu. Items include discounts, tags, images and
-// categories used by the rest of the application. It can be modified
-// according to business needs.
-export const defaultMenu = [
-  {
-    id: 'hot',
-    title: 'نوشیدنی‌های گرم',
-    icon: '🔥',
-    items: [
-      {
-        name: 'اسپرسو دبل',
-        price: 40000,
-        ingredients: '۲ شات اسپرسو',
-        tags: ['hot', 'sugar-free'],
-        img: 'https://images.unsplash.com/photo-1517705008128-361805f42e86?q=80&w=1200&auto=format&fit=crop',
-        discount: 0,
-      },
-      {
-        name: 'کاپوچینو',
-        price: 50000,
-        ingredients: 'اسپرسو، شیر',
-        tags: ['hot'],
-        img: 'https://images.unsplash.com/photo-1529676468690-d2cbca0df7d8?q=80&w=1200&auto=format&fit=crop',
-        discount: 10,
-      },
-      {
-        name: 'موکا',
-        price: 65000,
-        ingredients: 'اسپرسو، شیر، شکلات',
-        tags: ['hot'],
-        img: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=1200&auto=format&fit=crop',
-        discount: 0,
-      },
-    ],
-  },
-  {
-    id: 'cold',
-    title: 'نوشیدنی‌های سرد',
-    icon: '🧊',
-    items: [
-      {
-        name: 'آیس لاته',
-        price: 60000,
-        ingredients: 'اسپرسو، شیر، یخ',
-        tags: ['cold'],
-        img: 'https://images.unsplash.com/photo-1561882468-9110e03e0f78?q=80&w=1200&auto=format&fit=crop',
-        discount: 5,
-      },
-      {
-        name: 'لیموناد طبیعی',
-        price: 95000,
-        ingredients: 'لیمو تازه، استویا، آب گازدار',
-        tags: ['cold', 'sugar-free'],
-        img: 'https://images.unsplash.com/photo-1524593802650-05d131d6f3f9?q=80&w=1200&auto=format&fit=crop',
-        discount: 0,
-      },
-    ],
-  },
-  {
-    id: 'smoothie',
-    title: 'اسموتی‌ها',
-    icon: '🍹',
-    items: [
-      {
-        name: 'اسموتی سبز',
-        price: 50000,
-        ingredients: 'اسفناج، سیب سبز، کیوی، آب',
-        tags: ['smoothie', 'sugar-free'],
-        img: 'https://images.unsplash.com/photo-1525385133512-2f3bdd039054?q=80&w=1200&auto=format&fit=crop',
-        discount: 0,
-      },
-      {
-        name: 'اسموتی میوه‌های قرمز',
-        price: 55000,
-        ingredients: 'توت‌فرنگی، تمشک، آلبالو، یخ',
-        tags: ['smoothie'],
-        img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=1200&auto=format&fit=crop',
-        discount: 15,
-      },
-    ],
-  },
-  {
-    id: 'food',
-    title: 'غذا و میان‌وعده',
-    icon: '🥪',
-    items: [
-      {
-        name: 'سالاد پروتئین',
-        price: 80000,
-        ingredients: 'مرغ، کاهو، خیار، ذرت، سس سبک',
-        tags: ['food'],
-        img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=1200&auto=format&fit=crop',
-        discount: 0,
-      },
-      {
-        name: 'ساندویچ تن ماهی',
-        price: 70000,
-        ingredients: 'نان سبوس‌دار، تن ماهی، سبزیجات',
-        tags: ['food'],
-        img: 'https://images.unsplash.com/photo-1481070555726-e2fe8357725c?q=80&w=1200&auto=format&fit=crop',
-        discount: 0,
-      },
-    ],
-  },
-];
+const KEY = 'maxcafe_menu_v2';
 
-/**
- * Attempt to fetch menu data from a local menu.json file. Fallback to
- * data stored in localStorage under the key `menuData` or to the default
- * menu defined above. This design allows the admin interface to persist
- * changes across sessions and optionally override data by providing
- * a menu.json file alongside index.html.
- *
- * @returns {Promise<Array>} resolved menu array
- */
-export async function loadMenu() {
-  // Try menu.json from the web root. no-store ensures we bypass any cache.
-  try {
-    const res = await fetch('menu.json', { cache: 'no-store' });
-    if (res.ok) {
-      return await res.json();
+function seedData(){
+  return [
+    {
+      id: 'hot', title: 'نوشیدنی‌های گرم', icon:'🔥', tag:'hot',
+      items: [
+        { id:'esp', name:'اسپرسو سینگل', price:45000, ingredients:'عصاره قهوه عربیکا', discount:0, tags:['hot'], img:'https://images.unsplash.com/photo-1470338745628-171cf53de3a8?q=80&w=800&auto=format&fit=crop' },
+        { id:'amr', name:'آمریکانو', price:60000, ingredients:'اسپرسو + آب‌داغ', discount:10, tags:['hot'], img:'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=800&auto=format&fit=crop' }
+      ]
+    },
+    {
+      id: 'cold', title: 'نوشیدنی‌های سرد', icon:'❄️', tag:'cold',
+      items: [
+        { id:'cold-brew', name:'کُلد برو', price:85000, ingredients:'خیساندن سرد قهوه تخصصی', discount:0, tags:['cold'], img:'https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=800&auto=format&fit=crop' }
+      ]
+    },
+    {
+      id:'smoothie', title:'اسموتی و پروتئینی', icon:'💪', tag:'smoothie',
+      items:[
+        { id:'prot-banana', name:'اسموتی موز پروتئینی', price:120000, ingredients:'وی پروتئین+موز+شیر بادام', discount:15, tags:['smoothie','protein'], img:'https://images.unsplash.com/photo-1511910849309-0dffb8785146?q=80&w=800&auto=format&fit=crop' },
+        { id:'green-detox', name:'گرین دتوکس', price:110000, ingredients:'اسفناج+سیب+کیوی+لیمو', discount:0, tags:['smoothie'], img:'https://images.unsplash.com/photo-1542444459-db63c2b6b3f1?q=80&w=800&auto=format&fit=crop' }
+      ]
+    },
+    {
+      id:'food', title:'غذا و میان‌وعده', icon:'🥗', tag:'food',
+      items:[
+        { id:'chicken-bowl', name:'بول مرغ سالم', price:185000, ingredients:'سینه مرغ+برنج قهوه‌ای+سبزیجات', discount:0, tags:['food','protein'], img:'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800&auto=format&fit=crop' }
+      ]
     }
-  } catch (e) {
-    /* ignore */
+  ];
+}
+
+export async function loadMenu(){
+  let raw = localStorage.getItem(KEY);
+  if(!raw){
+    const seeded = seedData();
+    localStorage.setItem(KEY, JSON.stringify(seeded));
+    return seeded;
   }
-  // Try persisted menu in localStorage
-  const ls = localStorage.getItem('menuData');
-  if (ls) {
-    try {
-      return JSON.parse(ls);
-    } catch (e) {
-      /* ignore parsing errors */
-    }
+  try{
+    return JSON.parse(raw);
+  }catch(e){
+    const seeded = seedData();
+    localStorage.setItem(KEY, JSON.stringify(seeded));
+    return seeded;
   }
-  return defaultMenu;
+}
+
+export function saveMenu(menu){
+  localStorage.setItem(KEY, JSON.stringify(menu));
 }

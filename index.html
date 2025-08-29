@@ -1,367 +1,205 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>کافه مکس — منوی آنلاین | نوشیدنی و اسموتی سالم</title>
-  <meta name="description" content="کافه مکس: نوشیدنی‌های گرم و سرد، اسموتی‌های انرژی‌بخش و میان‌وعده‌های سالم. مدیریت آسان قیمت، تخفیف و تصاویر." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;800&display=swap"
-    rel="stylesheet"
-  />
+  <meta name="description" content="کافه مکس: نوشیدنی‌های گرم و سرد، اسموتی‌های انرژی‌بخش و میان‌وعده‌های سالم. مدیریت آسان قیمت، تخفیف و تصاویر."/>
+
+  <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    // Configure Tailwind with our custom palette. The theme colours are defined here
-    // to ensure that our styles cascade correctly. These values are used in
-    // styles.css and throughout the markup via CSS utility classes.
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              black: "#0B0F13",
-              white: "#ffffff",
-              teal: "#11c5c6",
-              green: "#23D997",
-              cream: "#F5E6C8",
-              yellow: "#F5D565",
-              red: "#FF4D4D",
-              gray: "#0f172a"
-            }
-          },
-          boxShadow: {
-            soft: "0 8px 24px rgba(17,197,198,0.15)",
-            glow: "0 0 40px rgba(35,217,151,0.25)"
-          }
-        }
-      }
-    };
-  </script>
-  <!-- Custom styles for animations, chips, modals, scrollbars, etc. -->
-  <link rel="stylesheet" href="assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css?v=20250829">
 </head>
-<body class="bg-brand-black text-brand-white min-h-screen">
-  <!-- Header and hero section. Contains the cafe name, slogan, search field, and
-       navigation link to the admin panel. -->
-  <header
-    class="sticky top-0 z-50 border-b border-white/10 shadow-2xl"
-    style="background: linear-gradient(90deg, #0b0f13 0%, #11c5c6 35%, #23D997 60%, #F5D565 100%);"
-  >
-    <div
-      class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3"
-    >
-      <div
-        class="h-9 w-9 rounded-xl bg-black/20 grid place-items-center ring-1 ring-white/40"
-        aria-label="لوگو"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          class="h-5 w-5 text-white"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M6 12h12" />
-          <path d="M9 8v8" />
-          <path d="M15 6v12" />
-        </svg>
+<body class="bg-base text-white selection:bg-teal-300 selection:text-black" id="top">
+  <!-- decorative background -->
+  <div class="bg-ornament pointer-events-none" aria-hidden="true"></div>
+
+  <!-- Header / Hero -->
+  <header class="relative overflow-hidden">
+    <div class="relative max-w-6xl mx-auto px-4 py-10 md:py-14">
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl md:text-3xl font-extrabold">کافه مکس</span>
+          <span class="px-3 py-1 rounded-full text-sm font-bold bg-white text-black">MAX GYM CAFE</span>
+        </div>
+        <nav class="hidden md:flex items-center gap-4 text-sm text-white/80">
+          <a href="#menu" class="hover:text-white">منو</a>
+          <a href="#admin" class="hover:text-white">ادمین</a>
+        </nav>
       </div>
-      <div class="flex-1">
-        <p class="text-sm text-black/80 font-semibold">کافه مکس</p>
-        <h1
-          class="text-lg font-extrabold tracking-tight text-black"
-        >
-          منوی آنلاین کافه مکس • نوشیدنیِ باکیفیت برای تمرینِ حرفه‌ای
-        </h1>
-      </div>
-      <a
-        href="#admin"
-        class="rounded-xl px-3 py-2 bg-black/70 text-white font-bold border border-white/30"
-      >
-        پنل مدیریت
-      </a>
-    </div>
-    <div class="max-w-6xl mx-auto px-4 pb-4">
-      <div class="relative">
-        <input
-          id="search"
-          type="search"
-          placeholder="جستجو در منو (نام یا مواد)..."
-          class="w-full rounded-2xl border border-black/10 px-4 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-brand-teal bg-white text-black"
-        />
-        <svg
-          class="absolute top-3.5 right-3.5 h-5 w-5 text-black/60"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.3-4.3" />
-        </svg>
-      </div>
-      <p class="mt-2 text-black/80 text-sm">
-        شعار:
-        <b>«هر جرعه، یک قدم نزدیک‌تر به فرم ایده‌آل.»</b>
-      </p>
-    </div>
-  </header>
-  <!-- Hero / Carousel area to highlight special offers. The carousel
-       automatically rotates through discounted items or all items if
-       no discounts exist. -->
-  <section class="bg-gradient-to-br from-brand-black via-brand-gray to-brand-black">
-    <div class="max-w-6xl mx-auto px-4 py-6 md:py-8">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl md:text-3xl font-extrabold">
-          پیشنهادهای امروز / همه محصولات
-        </h2>
-        <div class="flex gap-2">
-          <button id="cPrev" class="rounded-xl px-3 py-2 bg-white text-black border">
-            ◀
-          </button>
-          <button id="cNext" class="rounded-xl px-3 py-2 bg-white text-black border">
-            ▶
-          </button>
+
+      <div class="mt-8 md:mt-12 grid md:grid-cols-2 gap-6 items-center">
+        <div class="reveal">
+          <h1 class="text-3xl md:text-4xl font-extrabold leading-[1.25]">سوخت سالمِ تمرین — <span class="text-teal-300">خوش‌طعم و مقوی</span></h1>
+          <p class="text-white/80 mt-3">اسموتی‌های پروتئینی، قهوهٔ تخصصی و میان‌وعده‌های سالم — مخصوص ورزشکارها.</p>
+          <div class="mt-5 flex items-stretch gap-3">
+            <input id="search" type="search" placeholder="جستجوی محصول..."
+                   class="w-full rounded-xl bg-white/10 border border-white/10 px-4 py-3 outline-none focus:border-teal-400"/>
+          </div>
+          <div class="mt-3 flex items-center gap-2 flex-wrap">
+            <button class="chip active" data-chip="all">همه</button>
+            <button class="chip" data-chip="hot">گرم</button>
+            <button class="chip" data-chip="cold">سرد</button>
+            <button class="chip" data-chip="smoothie">اسموتی</button>
+            <button class="chip" data-chip="food">غذا</button>
+            <button class="chip" data-chip="discounted">%تخفیف‌دار</button>
+          </div>
+        </div>
+
+        <div class="reveal scale">
+          <!-- Carousel (no buttons; auto+swipe) -->
+          <div id="carousel" class="rounded-2xl p-3 bg-white/5 border border-white/10">
+            <h3 class="font-bold">پیشنهاد ویژه</h3>
+            <div class="mt-3 overflow-x-hidden">
+              <div id="cTrack" class="carousel-track"></div>
+            </div>
+            <!-- dots & progress injected by JS -->
+          </div>
         </div>
       </div>
-      <div id="carousel" class="mt-4 overflow-hidden">
-        <div
-          id="cTrack"
-          class="flex gap-4 will-change-transform transition-transform duration-500"
-        ></div>
-      </div>
     </div>
-  </section>
-  <!-- Filter chips for categories. Includes an "all" option. -->
-  <section class="bg-white text-black">
-    <div
-      class="max-w-6xl mx-auto px-4 py-5 flex flex-wrap gap-2 text-sm"
-    >
-      <button class="chip active" data-filter="all">همه</button>
-      <button class="chip" data-filter="hot">گرم</button>
-      <button class="chip" data-filter="cold">سرد</button>
-      <button class="chip" data-filter="smoothie">اسموتی</button>
-      <button class="chip" data-filter="food">غذا</button>
-      <button class="chip" data-filter="sugar-free">بدون قند</button>
-      <button class="chip" data-filter="discounted">دارای تخفیف</button>
-    </div>
-  </section>
-  <!-- Menu grid container where categories and items are rendered. -->
-  <main
-    id="menu"
-    class="max-w-6xl mx-auto px-4 py-10 space-y-12"
-  ></main>
-  <!-- Product modal with dynamic content. Used to display details when a
-       product card is clicked. -->
-  <dialog
-    id="productModal"
-    class="rounded-3xl border border-white/10 w-[min(700px,92vw)] p-0 bg-brand-black text-brand-white"
-  >
-    <div
-      class="p-5 border-b border-white/10 flex items-center justify-between"
-    >
-      <h4 id="mTitle" class="text-xl font-extrabold"></h4>
-      <button
-        id="btnCloseProduct"
-        class="rounded-xl px-3 py-1 bg-white/10 hover:bg-white/20"
-      >
-        بستن
-      </button>
-    </div>
-    <div class="p-5 grid md:grid-cols-2 gap-4">
-      <img
-        id="mImg"
-        class="w-full h-56 md:h-64 object-cover rounded-xl border border-white/10"
-        loading="lazy"
-        decoding="async"
-        alt=""
-      />
-      <div class="space-y-3">
-        <p id="mIngredients" class="text-white/80"></p>
-        <div id="mPriceWrap" class="flex items-baseline gap-2">
-          <span id="mPriceFinal" class="text-2xl font-extrabold"></span>
-          <span
-            id="mPriceOrig"
-            class="text-sm text-white/60 line-through-thin"
-          ></span>
-          <span
-            id="mDiscBadge"
-            class="text-xs font-bold px-2 py-1 rounded-full hidden"
-            style="background: #FF4D4D; color: #fff"
-          ></span>
+  </header>
+
+  <!-- Menu Grid -->
+  <main class="max-w-6xl mx-auto px-4 py-10">
+    <div id="menu" class="grid gap-10"></div>
+  </main>
+
+  <!-- Product Modal -->
+  <dialog id="productModal" class="rounded-2xl max-w-xl w-[92vw]">
+    <div class="p-0 bg-white text-black rounded-2xl overflow-hidden">
+      <div class="h-56 bg-gray-100"><img id="mImg" class="w-full h-full object-cover" alt=""></div>
+      <div class="p-4">
+        <div class="flex items-center justify-between">
+          <h4 id="mTitle" class="text-xl font-extrabold"></h4>
+          <span id="mDiscBadge" class="hidden text-xs font-bold px-2 py-1 rounded-full" style="background:#FF4D4D;color:#fff"></span>
+        </div>
+        <p id="mIngredients" class="text-sm text-black/70 mt-2"></p>
+        <div class="mt-3 flex items-baseline gap-2">
+          <div id="mPriceFinal" class="text-lg font-extrabold"></div>
+          <div id="mPriceOrig" class="text-sm text-black/60 line-through-thin"></div>
+        </div>
+        <div class="mt-4 flex items-center justify-end gap-2">
+          <button id="btnCloseProduct" class="px-3 py-2 rounded bg-black text-white">بستن</button>
         </div>
       </div>
     </div>
   </dialog>
-  <!-- Admin overlay for login and management of the menu. -->
-  <div
-    id="adminOverlay"
-    class="hidden fixed inset-0 z-[60] bg-black/70 backdrop-blur overflow-auto"
-  >
-    <div
-      class="max-w-6xl mx-auto my-8 p-6 md:p-8 rounded-3xl bg-white text-black shadow-2xl"
-    >
-      <div id="adminLogin" class="space-y-4">
-        <h3 class="text-2xl md:text-3xl font-extrabold">پنل مدیریت</h3>
-        <div class="grid md:grid-cols-3 gap-3">
-          <input
-            id="adminUser"
-            class="rounded-xl border px-3 py-2"
-            placeholder="نام کاربری"
-          />
-          <input
-            id="adminPass"
-            class="rounded-xl border px-3 py-2"
-            placeholder="رمز عبور"
-            type="password"
-          />
-          <button
-            id="btnAdminLogin"
-            class="rounded-xl px-3 py-2 font-bold text-white"
-            style="background: #11c5c6"
-          >
-            ورود
-          </button>
+
+  <!-- Admin Panel (on #admin) -->
+  <section id="adminRoot" class="hidden">
+    <div class="max-w-5xl mx-auto px-4 py-8">
+      <h2 class="text-2xl font-extrabold mb-4">پنل ادمین</h2>
+
+      <!-- Login -->
+      <div id="adminLogin" class="rounded-2xl border border-white/10 p-4 bg-white/5">
+        <div class="grid md:grid-cols-3 gap-3 items-end">
+          <div>
+            <label class="block text-sm mb-1">نام کاربری</label>
+            <input id="adminUser" class="w-full rounded bg-white/10 border border-white/10 px-3 py-2 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm mb-1">رمز عبور</label>
+            <input id="adminPass" type="password" class="w-full rounded bg-white/10 border border-white/10 px-3 py-2 outline-none">
+          </div>
+          <div class="flex gap-2">
+            <button id="adminLoginBtn" class="px-4 py-2 rounded bg-teal-500 text-black font-bold">ورود</button>
+            <a href="#top" class="px-4 py-2 rounded bg-white/10">بازگشت</a>
+          </div>
         </div>
-        <p class="text-sm text-black/60">
-          نام کاربری: <b>behzadcafeadmin</b> — رمز: <b>maxcafebehzadadmin</b>
-        </p>
-        <div class="flex gap-2">
-          <button
-            id="closeAdminFromLogin"
-            class="rounded-xl px-3 py-2 border"
-          >
-            بازگشت
-          </button>
-        </div>
+        <p class="text-xs text-white/60 mt-2">* اطلاعات ورود در UI نمایش داده نمی‌شود و رمز به صورت هش‌شده بررسی می‌گردد.</p>
       </div>
-      <div id="adminBody" class="hidden">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <h3 class="text-2xl md:text-3xl font-extrabold">مدیریت منو</h3>
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              id="btnPreviewSave"
-              class="rounded-xl px-3 py-2 text-white font-bold"
-              style="background: #23D997"
-            >
-              ذخیره پیش‌نمایش (به‌روزرسانی فوری)
-            </button>
-            <button
-              id="btnExport"
-              class="rounded-xl px-3 py-2 border"
-            >
-              دانلود menu.json
-            </button>
-            <button
-              id="btnLogout"
-              class="rounded-xl px-3 py-2 border"
-            >
-              خروج
-            </button>
-            <button
-              id="btnBack"
-              class="rounded-xl px-3 py-2 border"
-            >
-              بازگشت
-            </button>
+
+      <!-- Dashboard -->
+      <div id="adminDash" class="hidden">
+        <div class="flex items-center gap-2 mb-4">
+          <button id="btnAdminBack" class="px-3 py-2 rounded bg-white/10">بازگشت</button>
+          <button id="btnAdminLogout" class="px-3 py-2 rounded bg-white/10">خروج</button>
+          <span class="text-sm text-white/60">تغییرات لحظه‌ای در منو اعمال می‌شوند.</span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Categories -->
+          <div class="rounded-2xl border border-white/10 p-4 bg-white/5">
+            <h3 class="font-bold mb-3">دسته‌بندی‌ها</h3>
+            <div class="flex gap-2 mb-3">
+              <input id="newCatTitle" placeholder="عنوان دسته" class="w-full rounded bg-white/10 border border-white/10 px-3 py-2 outline-none">
+              <select id="newCatTag" class="rounded bg-white/10 border border-white/10 px-3 py-2">
+                <option value="hot">گرم</option>
+                <option value="cold">سرد</option>
+                <option value="smoothie">اسموتی</option>
+                <option value="food">غذا</option>
+              </select>
+              <button id="btnAddCat" class="px-3 py-2 rounded bg-teal-500 text-black font-bold">افزودن دسته</button>
+            </div>
+            <ul id="catList" class="space-y-2 text-sm"></ul>
+          </div>
+
+          <!-- Products -->
+          <div class="rounded-2xl border border-white/10 p-4 bg-white/5">
+            <h3 class="font-bold mb-3">محصولات</h3>
+            <div class="grid md:grid-cols-2 gap-2">
+              <select id="prodCat" class="rounded bg-white/10 border border-white/10 px-3 py-2"></select>
+              <input id="prodName" placeholder="نام محصول" class="rounded bg-white/10 border border-white/10 px-3 py-2">
+              <input id="prodPrice" placeholder="قیمت (تومان)" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
+              <input id="prodDiscount" placeholder="تخفیف % (اختیاری)" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
+              <input id="prodIngr" placeholder="مواد تشکیل‌دهنده" class="rounded bg-white/10 border border-white/10 px-3 py-2">
+              <input id="prodTags" placeholder="تگ‌ها (مثلاً: cold,protein)" class="rounded bg-white/10 border border-white/10 px-3 py-2">
+              <input id="prodImgUrl" placeholder="لینک تصویر (اختیاری)" class="rounded bg-white/10 border border-white/10 px-3 py-2 md:col-span-2">
+              <div class="flex items-center gap-2 md:col-span-2">
+                <input id="prodImgFile" type="file" accept="image/*" class="text-xs">
+                <span class="text-xs text-white/60">یا لینک تصویر را وارد کنید</span>
+              </div>
+              <div class="md:col-span-2 flex gap-2">
+                <button id="btnAddProd" class="px-3 py-2 rounded bg-teal-500 text-black font-bold">افزودن/به‌روزرسانی</button>
+                <button id="btnClearProd" class="px-3 py-2 rounded bg-white/10">پاک‌سازی فرم</button>
+              </div>
+            </div>
+            <div class="mt-3">
+              <label class="text-sm">انتخاب محصول برای حذف:</label>
+              <select id="prodRemoveSel" class="mt-1 rounded bg-white/10 border border-white/10 px-3 py-2 w-full"></select>
+              <button id="btnRemoveProd" class="mt-2 px-3 py-2 rounded bg-red-500 text-white">حذف محصول</button>
+            </div>
           </div>
         </div>
-        <div class="mt-5 rounded-2xl border p-4 bg-amber-50">
-          <h4 class="font-bold mb-2">تخفیف سراسری</h4>
-          <div class="flex items-center gap-2">
-            <input
-              id="globalDiscount"
-              type="number"
-              min="0"
-              max="90"
-              class="rounded-xl border px-3 py-2 w-28"
-              placeholder="%"
-            />
-            <button
-              id="applyGlobalDiscount"
-              class="rounded-xl px-3 py-2 text-white"
-              style="background: #FF4D4D"
-            >
-              اعمال روی همه
-            </button>
-            <span class="text-sm text-black/60">
-              (اگر محصول تخفیف اختصاصی دارد، همان اعمال می‌شود.)
-            </span>
+
+        <!-- Discounts -->
+        <div class="rounded-2xl border border-white/10 p-4 bg-white/5 mt-6">
+          <h3 class="font-bold mb-3">تخفیف گروهی</h3>
+          <div class="grid md:grid-cols-4 gap-2">
+            <select id="discCat" class="rounded bg-white/10 border border-white/10 px-3 py-2"></select>
+            <input id="discPercent" placeholder="درصد تخفیف" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
+            <button id="btnApplyDisc" class="px-3 py-2 rounded bg-yellow-300 text-black font-bold">اعمال</button>
+            <button id="btnClearDisc" class="px-3 py-2 rounded bg-white/10">حذف تخفیف‌ها</button>
           </div>
-        </div>
-        <div id="adminCats" class="mt-6 space-y-6"></div>
-        <div class="mt-6 grid md:grid-cols-3 gap-3">
-          <input
-            id="newCatTitle"
-            class="rounded-xl border px-3 py-2"
-            placeholder="عنوان دسته"
-          />
-          <input
-            id="newCatId"
-            class="rounded-xl border px-3 py-2"
-            placeholder="شناسه لاتین (hot/cold/...)"
-          />
-          <button
-            id="btnAddCat"
-            class="rounded-xl px-3 py-2 text-white"
-            style="background: #11c5c6"
-          >
-            افزودن دسته
-          </button>
         </div>
       </div>
     </div>
-  </div>
-  <!-- Footer with information about cafe, operating hours, contact, and
-       address. -->
-  <footer class="border-t border-white/10 py-10">
-    <div
-      class="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-6 text-sm"
-    >
+  </section>
+
+  <!-- Footer (address & info) -->
+  <footer id="contact" class="border-t border-white/10">
+    <div class="max-w-6xl mx-auto px-4 py-8 text-white/80 text-sm grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
-        <h4 class="font-bold mb-2">درباره کافه مکس</h4>
-        <p class="text-white/70">«هر جرعه، یک قدم نزدیک‌تر به فرم ایده‌آل.»</p>
+        <div class="font-extrabold text-white">کافه مکس</div>
+        <div>MAX GYM CAFE</div>
+        <div class="mt-2">© <span id="year"></span></div>
       </div>
-      <div>
-        <h4 class="font-bold mb-2">ساعت کاری</h4>
-        <p class="text-white/70">هر روز: ۹:۰۰ تا ۲۴:۰۰</p>
+      <div class="space-y-1">
+        <div>⏰ ساعات کاری: ۹ صبح تا ۱۲ شب</div>
+        <div>👤 مدیریت: بهزاد بهزادفر</div>
+        <div>☎️ ۰۹۱۴۴۸۱۶۴۲۷</div>
       </div>
-      <div>
-        <h4 class="font-bold mb-2">تماس و مدیریت</h4>
-        <p class="text-white/70">
-          مدیریت: بهزاد بهزادفر<br />
-          تلفن: ۰۹۱۴۴۸۱۶۴۲۷
-        </p>
+      <div class="space-y-1">
+        <div>📍 میاندوآب، خیابان ۲۴ متری، روبه‌روی لوازم خانگی سرور</div>
+        <div>📸 اینستاگرام: <a class="underline" href="https://instagram.com/max_gym_club" target="_blank" rel="noopener">max_gym_club</a></div>
+        <div>سازنده: <a class="underline" href="https://github.com/MasoudMaghsodi" target="_blank">MasoudMaghsodi</a> ❤️ ☕</div>
       </div>
-      <div>
-        <h4 class="font-bold mb-2">آدرس و شبکه‌ها</h4>
-        <p class="text-white/70">
-          میاندوآب، خیابان ۲۴ متری، روبه‌روی لوازم خانگی سرور
-        </p>
-        <p class="text-white/70">
-          اینستاگرام: <b>@max_gym_club</b>
-        </p>
-      </div>
-    </div>
-    <div
-      class="max-w-6xl mx-auto px-4 mt-6 text-[12px] text-white/60"
-    >
-      © <span id="year"></span> کافه مکس
     </div>
   </footer>
-  <!-- Maker badge with author information and icons. -->
-  <a
-    class="badge-maker rounded-full bg-white text-black px-3 py-2 border flex items-center gap-2"
-    href="https://github.com/MasoudMaghsodi"
-    target="_blank"
-    rel="noopener"
-  >
-    سازنده: MasoudMaghsodi ❤️ ☕
-  </a>
-  <!-- Main entry script as an ES module. All logic for rendering, filters,
-       carousel, and admin panel is defined in separate modules. -->
-  <script type="module" src="assets/main.js"></script>
+
+  <script type="module" src="assets/main.js?v=20250829"></script>
 </body>
 </html>

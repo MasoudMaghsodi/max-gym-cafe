@@ -1,285 +1,187 @@
-import { renderMenu } from './render.js';
+import { sha256, slugify } from './utils.js';
+import { loadMenu, saveMenu } from './data.js';
 import { applyFilters } from './filters.js';
 
-/**
- * Initialise all admin-related behaviour. This includes login, logout,
- * saving changes to localStorage, downloading menu.json, applying
- * global discounts, adding and removing categories/items, and syncing
- * changes back to the UI. The admin interface is shown via a hash
- * (#admin) in the URL to avoid accidental access.
- */
-export function initAdmin() {
-  const overlay = document.getElementById('adminOverlay');
-  const login = document.getElementById('adminLogin');
-  const body = document.getElementById('adminBody');
-  const holder = document.getElementById('adminCats');
-  // Show or hide overlay based on hash
-  function ensureOverlay() {
-    if (location.hash === '#admin') {
-      overlay.classList.remove('hidden');
-    } else {
-      overlay.classList.add('hidden');
-    }
+// Static-site demo auth
+const ADMIN_USER = 'behzadcafeadmin';
+// SHA-256('maxcafebehzadadmin'):
+const ADMIN_PASS_SHA256 = '763f157136c33e6983a3e578d5596db51e3925771fa26de69dbec6e426d90333';
+const SESSION_KEY = 'maxcafe_admin_session_v1';
+
+function isLoggedIn(){
+  return localStorage.getItem(SESSION_KEY) === '1';
+}
+function setLoggedIn(v){
+  if(v) localStorage.setItem(SESSION_KEY,'1'); else localStorage.removeItem(SESSION_KEY);
+}
+
+function fillCatSelects(menu){
+  const prodCat = document.getElementById('prodCat');
+  const discCat = document.getElementById('discCat');
+  [prodCat, discCat].forEach(sel => { if (!sel) return; sel.innerHTML = menu.map(c=>`<option value="${c.id}">${c.title}</option>`).join(''); });
+}
+
+function refreshRemoveSelect(menu){
+  const sel = document.getElementById('prodRemoveSel');
+  if(!sel) return;
+  const opts = [];
+  menu.forEach(c=>{
+    (c.items||[]).forEach(it=>{
+      opts.push(`<option value="${c.id}::${it.id}">${c.title} — ${it.name}</option>`);
+    });
+  });
+  sel.innerHTML = opts.join('');
+}
+
+function renderCatList(menu){
+  const ul = document.getElementById('catList');
+  if(!ul) return;
+  ul.innerHTML = menu.map(c=>`
+    <li class="flex items-center justify-between gap-2 rounded bg-white/5 border border-white/10 p-2">
+      <div class="text-sm">${c.title} <span class="text-white/50">(${(c.items||[]).length} محصول)</span></div>
+      <div class="flex items-center gap-2">
+        <button data-cid="${c.id}" class="btnDelCat px-2 py-1 rounded bg-red-500 text-white text-xs">حذف</button>
+      </div>
+    </li>
+  `).join('');
+  ul.querySelectorAll('.btnDelCat').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const cid = btn.getAttribute('data-cid');
+      let menuNow = structuredClone(window.__menu||[]);
+      menuNow = menuNow.filter(c => c.id !== cid);
+      window.__menu = menuNow; saveMenu(menuNow);
+      applyFilters();
+      fillCatSelects(menuNow);
+      renderCatList(menuNow);
+      refreshRemoveSelect(menuNow);
+    });
+  });
+}
+
+export async function initAdmin(){
+  const root = document.getElementById('adminRoot');
+  if(!root) return;
+
+  const loginBox = document.getElementById('adminLogin');
+  const dashBox  = document.getElementById('adminDash');
+  const loginBtn = document.getElementById('adminLoginBtn');
+  const userEl   = document.getElementById('adminUser');
+  const passEl   = document.getElementById('adminPass');
+
+  function updateUI(){
+    const logged = isLoggedIn();
+    loginBox.classList.toggle('hidden', logged===true);
+    dashBox.classList.toggle('hidden', logged!==true);
   }
-  window.addEventListener('hashchange', ensureOverlay);
-  ensureOverlay();
-  // Login logic
-  document.getElementById('btnAdminLogin').addEventListener('click', () => {
-    const u = document.getElementById('adminUser').value.trim();
-    const p = document.getElementById('adminPass').value;
-    if (u === 'behzadcafeadmin' && p === 'maxcafebehzadadmin') {
-      login.classList.add('hidden');
-      body.classList.remove('hidden');
-      renderAdmin();
-    } else {
-      alert('نام کاربری یا رمز عبور اشتباه است.');
-    }
-  });
-  // Logout logic
-  document.getElementById('btnLogout').addEventListener('click', () => {
-    body.classList.add('hidden');
-    login.classList.remove('hidden');
-  });
-  // Back button (closes overlay)
-  document.getElementById('btnBack').addEventListener('click', () => {
-    overlay.classList.add('hidden');
-    location.hash = '';
-  });
-  document
-    .getElementById('closeAdminFromLogin')
-    .addEventListener('click', () => {
-      overlay.classList.add('hidden');
-      location.hash = '';
+  updateUI();
+
+  if(loginBtn){
+    loginBtn.addEventListener('click', async ()=>{
+      const u = (userEl.value||'').trim();
+      const p = passEl.value||'';
+      if(u !== ADMIN_USER){ alert('ورود نامعتبر'); return; }
+      const h = await sha256(p);
+      if(h !== ADMIN_PASS_SHA256){ alert('ورود نامعتبر'); return; }
+      setLoggedIn(true); updateUI();
+      const menu = await loadMenu(); window.__menu = menu;
+      fillCatSelects(menu); renderCatList(menu); refreshRemoveSelect(menu);
     });
-  // Global discount application
-  document
-    .getElementById('applyGlobalDiscount')
-    .addEventListener('click', () => {
-      const d = Math.max(
-        0,
-        Math.min(90, Number(document.getElementById('globalDiscount').value || 0))
-      );
-      const menu = window.__menu || [];
-      menu.forEach((c) =>
-        c.items.forEach((i) => {
-          if (!(i.discount > 0)) i.discount = d;
-        })
-      );
-      localStorage.setItem('menuData', JSON.stringify(menu));
-      renderAdmin();
-      applyFilters();
-    });
-  // Save preview (persist to localStorage)
-  document
-    .getElementById('btnPreviewSave')
-    .addEventListener('click', () => {
-      localStorage.setItem('menuData', JSON.stringify(window.__menu || []));
-      alert('ذخیره شد و سایت به‌روزرسانی گردید.');
-      applyFilters();
-    });
-  // Export menu to JSON file
-  document.getElementById('btnExport').addEventListener('click', () => {
-    const blob = new Blob([
-      JSON.stringify(window.__menu || [], null, 2),
-    ], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'menu.json';
-    a.click();
+  }
+
+  document.getElementById('btnAdminLogout')?.addEventListener('click', ()=>{
+    setLoggedIn(false); updateUI();
   });
-  // Add category
-  document.getElementById('btnAddCat').addEventListener('click', () => {
+  document.getElementById('btnAdminBack')?.addEventListener('click', ()=>{
+    location.hash = '#top';
+  });
+
+  // Add Category
+  document.getElementById('btnAddCat')?.addEventListener('click', ()=>{
     const title = document.getElementById('newCatTitle').value.trim();
-    const id = document.getElementById('newCatId').value.trim();
-    if (!title || !id) return;
-    window.__menu.push({ id, title, icon: '📦', items: [] });
-    localStorage.setItem('menuData', JSON.stringify(window.__menu));
-    renderAdmin();
-    applyFilters();
-    document.getElementById('newCatTitle').value = '';
-    document.getElementById('newCatId').value = '';
+    const tag = document.getElementById('newCatTag').value;
+    if(!title) return;
+    const id  = slugify(title);
+    const menu = structuredClone(window.__menu||[]);
+    if(menu.some(c=>c.id===id)){ alert('این دسته وجود دارد'); return; }
+    menu.push({id, title, icon:'', tag, items:[]});
+    window.__menu = menu; saveMenu(menu);
+    applyFilters(); fillCatSelects(menu); renderCatList(menu);
   });
-  /**
-   * Render categories and items in the admin table. Each row is editable
-   * and updates the menu immediately. Deleting and adding items and
-   * categories is supported.
-   */
-  function renderAdmin() {
-    const menu = window.__menu || [];
-    holder.innerHTML = '';
-    menu.forEach((cat, ci) => {
-      const sec = document.createElement('div');
-      sec.className = 'rounded-2xl border p-4';
-      sec.innerHTML = `
-        <div class="flex items-center justify-between gap-2">
-          <div class="font-bold text-lg">
-            ${cat.title} <span class="text-xs text-black/50">(#${cat.id})</span>
-          </div>
-          <button data-del-cat="${ci}" class="rounded px-2 py-1 border">حذف دسته</button>
-        </div>
-        <div class="overflow-auto mt-3">
-          <table class="w-full text-sm align-top">
-            <thead class="text-black/60">
-              <tr>
-                <th class="p-2 text-right">نام</th>
-                <th class="p-2 text-right">قیمت</th>
-                <th class="p-2 text-right">تخفیف %</th>
-                <th class="p-2 text-right">محتویات</th>
-                <th class="p-2 text-right">لینک تصویر</th>
-                <th class="p-2">آپلود</th>
-                <th class="p-2">عملیات</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${cat.items
-                .map(
-                  (it, ii) => `
-                <tr>
-                  <td class="p-2">
-                    <input data-ci="${ci}" data-ii="${ii}" data-k="name" class="w-full rounded border px-2 py-1" value="${it.name || ''}">
-                  </td>
-                  <td class="p-2">
-                    <input type="number" data-ci="${ci}" data-ii="${ii}" data-k="price" class="w-full rounded border px-2 py-1" value="${
-                      it.price || 0
-                    }">
-                  </td>
-                  <td class="p-2">
-                    <input type="number" min="0" max="90" data-ci="${ci}" data-ii="${ii}" data-k="discount" class="w-full rounded border px-2 py-1" value="${
-                      it.discount || 0
-                    }">
-                  </td>
-                  <td class="p-2">
-                    <input data-ci="${ci}" data-ii="${ii}" data-k="ingredients" class="w-full rounded border px-2 py-1" value="${
-                      it.ingredients || ''
-                    }">
-                  </td>
-                  <td class="p-2">
-                    <input data-ci="${ci}" data-ii="${ii}" data-k="img" class="w-full rounded border px-2 py-1" value="${
-                      it.img || ''
-                    }" placeholder="https://...">
-                  </td>
-                  <td class="p-2">
-                    <input type="file" data-upload="${ci}|${ii}" accept="image/*" class="block">
-                  </td>
-                  <td class="p-2 text-center">
-                    <button data-del="${ci}|${ii}" class="rounded px-2 py-1 border">حذف</button>
-                  </td>
-                </tr>
-              `
-                )
-                .join('')}
-              <tr class="bg-amber-50">
-                <td class="p-2">
-                  <input id="n${ci}name" class="w-full rounded border px-2 py-1" placeholder="نام جدید">
-                </td>
-                <td class="p-2">
-                  <input id="n${ci}price" type="number" class="w-full rounded border px-2 py-1" placeholder="قیمت">
-                </td>
-                <td class="p-2">
-                  <input id="n${ci}disc" type="number" min="0" max="90" class="w-full rounded border px-2 py-1" placeholder="%">
-                </td>
-                <td class="p-2">
-                  <input id="n${ci}ing" class="w-full rounded border px-2 py-1" placeholder="مواد">
-                </td>
-                <td class="p-2">
-                  <input id="n${ci}img" class="w-full rounded border px-2 py-1" placeholder="لینک تصویر">
-                </td>
-                <td class="p-2">
-                  <input type="file" id="n${ci}file" accept="image/*">
-                </td>
-                <td class="p-2 text-center">
-                  <button data-add="${ci}" class="rounded px-2 py-1 text-white" style="background:#11c5c6">افزودن</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      `;
-      holder.appendChild(sec);
+
+  // Add/Update Product
+  async function fileToDataUrl(file){
+    return new Promise((res,rej)=>{
+      const r = new FileReader();
+      r.onload = ()=> res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
     });
   }
-  // Listen for inline edits and update menu state
-  holder.addEventListener('input', (e) => {
-    const el = e.target;
-    if (!el.dataset.k) return;
-    const ci = +el.dataset.ci;
-    const ii = +el.dataset.ii;
-    const key = el.dataset.k;
-    const val =
-      key === 'price' || key === 'discount'
-        ? Number(el.value || 0)
-        : el.value;
-    window.__menu[ci].items[ii][key] = val;
-    localStorage.setItem('menuData', JSON.stringify(window.__menu));
+  document.getElementById('btnAddProd')?.addEventListener('click', async ()=>{
+    const catId = document.getElementById('prodCat').value;
+    const name  = document.getElementById('prodName').value.trim();
+    const price = Number(document.getElementById('prodPrice').value||0);
+    const disc  = Number(document.getElementById('prodDiscount').value||0);
+    const ingr  = document.getElementById('prodIngr').value.trim();
+    const tags  = (document.getElementById('prodTags').value||'').split(',').map(s=>s.trim()).filter(Boolean);
+    let img     = document.getElementById('prodImgUrl').value.trim();
+
+    const f = document.getElementById('prodImgFile').files?.[0];
+    if(!img && f){ img = await fileToDataUrl(f); }
+
+    if(!catId || !name || !price){ alert('نام/قیمت/دسته الزامی است'); return; }
+
+    const menu = structuredClone(window.__menu||[]);
+    const cat = menu.find(c=>c.id===catId);
+    if(!cat){ alert('دسته نامعتبر'); return; }
+    const id  = slugify(name);
+    const idx = (cat.items||[]).findIndex(i=>i.id===id);
+    const item = { id, name, price, discount:disc||0, ingredients:ingr, tags, img };
+    if(idx>=0) cat.items[idx] = item; else { cat.items = cat.items||[]; cat.items.push(item); }
+
+    window.__menu = menu; saveMenu(menu);
+    applyFilters(); fillCatSelects(menu); refreshRemoveSelect(menu);
+    alert('ذخیره شد');
+  });
+
+  document.getElementById('btnClearProd')?.addEventListener('click', ()=>{
+    ['prodName','prodPrice','prodDiscount','prodIngr','prodTags','prodImgUrl'].forEach(id=> document.getElementById(id).value='');
+    const f = document.getElementById('prodImgFile'); if(f) f.value='';
+  });
+
+  // Remove Product
+  document.getElementById('btnRemoveProd')?.addEventListener('click', ()=>{
+    const v = document.getElementById('prodRemoveSel').value;
+    if(!v) return;
+    const [cid, pid] = v.split('::');
+    let menu = structuredClone(window.__menu||[]);
+    const c = menu.find(x=>x.id===cid);
+    if(!c) return;
+    c.items = (c.items||[]).filter(i=>i.id!==pid);
+    window.__menu = menu; saveMenu(menu);
+    applyFilters(); fillCatSelects(menu); refreshRemoveSelect(menu);
+  });
+
+  // Discounts
+  document.getElementById('btnApplyDisc')?.addEventListener('click', ()=>{
+    const cid = document.getElementById('discCat').value;
+    const percent = Number(document.getElementById('discPercent').value||0);
+    if(!cid || !percent) return;
+    const menu = structuredClone(window.__menu||[]);
+    const cat = menu.find(c=>c.id===cid); if(!cat) return;
+    cat.items = (cat.items||[]).map(i=> ({...i, discount:percent}));
+    window.__menu = menu; saveMenu(menu);
     applyFilters();
   });
-  // Listen for file uploads (images)
-  holder.addEventListener('change', (e) => {
-    const up = e.target.dataset.upload;
-    if (up && e.target.files?.[0]) {
-      const [ci, ii] = up.split('|').map(Number);
-      const reader = new FileReader();
-      reader.onload = () => {
-        window.__menu[ci].items[ii].img = reader.result;
-        localStorage.setItem('menuData', JSON.stringify(window.__menu));
-        applyFilters();
-        // Re-render admin to update preview of image link field
-        renderAdmin();
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
+  document.getElementById('btnClearDisc')?.addEventListener('click', ()=>{
+    const menu = structuredClone(window.__menu||[]);
+    menu.forEach(c=> c.items = (c.items||[]).map(i=> ({...i, discount:0})));
+    window.__menu = menu; saveMenu(menu);
+    applyFilters();
   });
-  // Listen for add/delete actions
-  holder.addEventListener('click', (e) => {
-    // Delete item
-    const del = e.target.dataset.del;
-    if (del) {
-      const [ci, ii] = del.split('|').map(Number);
-      window.__menu[ci].items.splice(ii, 1);
-      localStorage.setItem('menuData', JSON.stringify(window.__menu));
-      renderAdmin();
-      applyFilters();
-    }
-    // Add item
-    const add = e.target.dataset.add;
-    if (add) {
-      const ci = +add;
-      const n = {
-        name: document.getElementById(`n${ci}name`).value.trim(),
-        price: Number(document.getElementById(`n${ci}price`).value || 0),
-        discount: Number(document.getElementById(`n${ci}disc`).value || 0),
-        ingredients: document.getElementById(`n${ci}ing`).value,
-        img: document.getElementById(`n${ci}img`).value,
-        tags: [window.__menu[ci].id],
-      };
-      const file = document.getElementById(`n${ci}file`).files?.[0];
-      if (!n.name) return;
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          n.img = reader.result;
-          window.__menu[ci].items.push(n);
-          localStorage.setItem('menuData', JSON.stringify(window.__menu));
-          renderAdmin();
-          applyFilters();
-        };
-        reader.readAsDataURL(file);
-      } else {
-        window.__menu[ci].items.push(n);
-        localStorage.setItem('menuData', JSON.stringify(window.__menu));
-        renderAdmin();
-        applyFilters();
-      }
-    }
-    // Delete category
-    const delCat = e.target.dataset.delCat;
-    if (delCat) {
-      window.__menu.splice(Number(delCat), 1);
-      localStorage.setItem('menuData', JSON.stringify(window.__menu));
-      renderAdmin();
-      applyFilters();
-    }
-  });
-  // Expose for other modules if necessary
-  window.__renderAdmin = renderAdmin;
+
+  if(isLoggedIn()){
+    const menu = await loadMenu(); window.__menu = menu;
+    fillCatSelects(menu); renderCatList(menu); refreshRemoveSelect(menu);
+  }
 }
