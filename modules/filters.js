@@ -23,7 +23,7 @@ export function applyFilters() {
   if (typeof window.initReveal === 'function') window.initReveal();
 }
 
-export function initFilters(menu){
+export function initFilters(){
   const chips = [...document.querySelectorAll('.chip')];
   chips.forEach(ch => ch.addEventListener('click', ()=>{
     if (ch.dataset.chip === 'all') {

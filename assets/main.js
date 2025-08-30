@@ -2,7 +2,7 @@ import { loadMenu } from "../modules/data.js";
 import { renderMenu, openProduct, closeProduct, renderShortcuts } from "../modules/render.js";
 import { initFilters, applyFilters } from "../modules/filters.js";
 import { renderCarousel } from "../modules/carousel.js";
-import { initAdmin } from "../modules/admin.js";
+import { initAdminModal, openAdminModal } from "../modules/admin.js";
 
 window.openProduct = openProduct;
 window.closeProduct = closeProduct;
@@ -26,10 +26,7 @@ function initReveal(){
 window.initReveal = initReveal;
 
 (async function init(){
-  const isAdmin = location.hash === "#admin";
-  document.getElementById("adminRoot").classList.toggle("hidden", !isAdmin);
-
-  const menu = await loadMenu();      // only localStorage
+  const menu = await loadMenu();      // localStorage only
   window.__menu = menu;
 
   renderShortcuts(menu);
@@ -42,13 +39,14 @@ window.initReveal = initReveal;
   renderCarousel(menu);
 
   const y = document.getElementById("year"); if (y) y.textContent = new Date().getFullYear();
-
   document.getElementById("btnCloseProduct").addEventListener("click", closeProduct);
 
-  initAdmin();
+  // Admin modal
+  initAdminModal();
+  document.getElementById("adminOpen")?.addEventListener("click", (e)=>{ e.preventDefault(); openAdminModal(); });
+  document.getElementById("adminOpenSm")?.addEventListener("click", ()=> openAdminModal());
+  window.addEventListener("hashchange", ()=> { if(location.hash==="#admin") openAdminModal(); });
 
-  window.addEventListener("hashchange", ()=>{
-    const isAdm = location.hash === "#admin";
-    document.getElementById("adminRoot").classList.toggle("hidden", !isAdm);
-  });
+  // Open if user directly navigated to #admin
+  if (location.hash === "#admin") openAdminModal();
 })();

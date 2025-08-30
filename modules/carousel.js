@@ -95,7 +95,7 @@ export function renderCarousel(menu){
     setTimeout(()=>{ jumpIfCloned(); animating = false; }, 580);
   }
 
-  // drag/swipe only (no buttons)
+  // drag/swipe only
   let startX=0, dragging=false, pointerId=null;
   track.addEventListener("pointerdown",(e)=>{ dragging=true; pointerId=e.pointerId; startX=e.clientX; track.setPointerCapture(pointerId); track.style.transition="none"; clearAuto(); });
   track.addEventListener("pointermove",(e)=>{ if(!dragging) return; const dx = e.clientX - startX; track.style.transform = `translateX(${(-index*step)+dx}px)`; });
@@ -104,7 +104,7 @@ export function renderCarousel(menu){
   track.addEventListener("pointercancel",endDrag);
   track.addEventListener("pointerleave",(e)=>{ if(dragging) endDrag(e); });
 
-  // hover pause (desktop)
+  // hover pause
   wrap.addEventListener("mouseenter", clearAuto);
   wrap.addEventListener("mouseleave", startAuto);
 

@@ -10,34 +10,38 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/styles.css?v=20250829">
+  <link rel="stylesheet" href="assets/styles.css?v=20250830">
 </head>
 <body class="bg-base text-white selection:bg-teal-300 selection:text-black" id="top">
-  <!-- decorative background -->
   <div class="bg-ornament pointer-events-none" aria-hidden="true"></div>
 
-  <!-- Header / Hero -->
+  <!-- Header -->
   <header class="relative overflow-hidden">
-    <div class="relative max-w-6xl mx-auto px-4 py-10 md:py-14">
-      <div class="flex items-center justify-between gap-4">
+    <div class="relative max-w-6xl mx-auto px-4 py-6 md:py-8">
+      <div class="flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <span class="text-2xl md:text-3xl font-extrabold">کافه مکس</span>
           <span class="px-3 py-1 rounded-full text-sm font-bold bg-white text-black">MAX GYM CAFE</span>
         </div>
         <nav class="hidden md:flex items-center gap-4 text-sm text-white/80">
           <a href="#menu" class="hover:text-white">منو</a>
-          <a href="#admin" class="hover:text-white">ادمین</a>
+          <a id="adminOpen" href="#admin" class="hover:text-white">ادمین</a>
         </nav>
+        <button id="adminOpenSm" class="md:hidden px-3 py-1 rounded bg-white/10 border border-white/10 text-sm">ادمین</button>
       </div>
 
-      <div class="mt-8 md:mt-12 grid md:grid-cols-2 gap-6 items-center">
+      <div class="mt-6 md:mt-10 grid md:grid-cols-2 gap-6 items-center">
         <div class="reveal">
-          <h1 class="text-3xl md:text-4xl font-extrabold leading-[1.25]">سوخت سالمِ تمرین — <span class="text-teal-300">خوش‌طعم و مقوی</span></h1>
+          <h1 class="text-3xl md:text-4xl font-extrabold leading-[1.25]">
+            سوخت سالمِ تمرین — <span class="text-teal-300">خوش‌طعم و مقوی</span>
+          </h1>
           <p class="text-white/80 mt-3">اسموتی‌های پروتئینی، قهوهٔ تخصصی و میان‌وعده‌های سالم — مخصوص ورزشکارها.</p>
+
           <div class="mt-5 flex items-stretch gap-3">
             <input id="search" type="search" placeholder="جستجوی محصول..."
                    class="w-full rounded-xl bg-white/10 border border-white/10 px-4 py-3 outline-none focus:border-teal-400"/>
           </div>
+
           <div class="mt-3 flex items-center gap-2 flex-wrap">
             <button class="chip active" data-chip="all">همه</button>
             <button class="chip" data-chip="hot">گرم</button>
@@ -48,21 +52,21 @@
           </div>
         </div>
 
+        <!-- Carousel -->
         <div class="reveal scale">
-          <!-- Carousel (no buttons; auto+swipe) -->
           <div id="carousel" class="rounded-2xl p-3 bg-white/5 border border-white/10">
             <h3 class="font-bold">پیشنهاد ویژه</h3>
             <div class="mt-3 overflow-x-hidden">
               <div id="cTrack" class="carousel-track"></div>
             </div>
-            <!-- dots & progress injected by JS -->
+            <!-- dots & progress by JS -->
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Menu Grid -->
+  <!-- Menu -->
   <main class="max-w-6xl mx-auto px-4 py-10">
     <div id="menu" class="grid gap-10"></div>
   </main>
@@ -88,98 +92,18 @@
     </div>
   </dialog>
 
-  <!-- Admin Panel (on #admin) -->
-  <section id="adminRoot" class="hidden">
-    <div class="max-w-5xl mx-auto px-4 py-8">
-      <h2 class="text-2xl font-extrabold mb-4">پنل ادمین</h2>
-
-      <!-- Login -->
-      <div id="adminLogin" class="rounded-2xl border border-white/10 p-4 bg-white/5">
-        <div class="grid md:grid-cols-3 gap-3 items-end">
-          <div>
-            <label class="block text-sm mb-1">نام کاربری</label>
-            <input id="adminUser" class="w-full rounded bg-white/10 border border-white/10 px-3 py-2 outline-none">
-          </div>
-          <div>
-            <label class="block text-sm mb-1">رمز عبور</label>
-            <input id="adminPass" type="password" class="w-full rounded bg-white/10 border border-white/10 px-3 py-2 outline-none">
-          </div>
-          <div class="flex gap-2">
-            <button id="adminLoginBtn" class="px-4 py-2 rounded bg-teal-500 text-black font-bold">ورود</button>
-            <a href="#top" class="px-4 py-2 rounded bg-white/10">بازگشت</a>
-          </div>
-        </div>
-        <p class="text-xs text-white/60 mt-2">* اطلاعات ورود در UI نمایش داده نمی‌شود و رمز به صورت هش‌شده بررسی می‌گردد.</p>
+  <!-- Admin Modal -->
+  <dialog id="adminModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="adminTitle" class="font-extrabold">پنل ادمین</h3>
+        <button id="adminClose" class="btn ghost">✕</button>
       </div>
-
-      <!-- Dashboard -->
-      <div id="adminDash" class="hidden">
-        <div class="flex items-center gap-2 mb-4">
-          <button id="btnAdminBack" class="px-3 py-2 rounded bg-white/10">بازگشت</button>
-          <button id="btnAdminLogout" class="px-3 py-2 rounded bg-white/10">خروج</button>
-          <span class="text-sm text-white/60">تغییرات لحظه‌ای در منو اعمال می‌شوند.</span>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-6">
-          <!-- Categories -->
-          <div class="rounded-2xl border border-white/10 p-4 bg-white/5">
-            <h3 class="font-bold mb-3">دسته‌بندی‌ها</h3>
-            <div class="flex gap-2 mb-3">
-              <input id="newCatTitle" placeholder="عنوان دسته" class="w-full rounded bg-white/10 border border-white/10 px-3 py-2 outline-none">
-              <select id="newCatTag" class="rounded bg-white/10 border border-white/10 px-3 py-2">
-                <option value="hot">گرم</option>
-                <option value="cold">سرد</option>
-                <option value="smoothie">اسموتی</option>
-                <option value="food">غذا</option>
-              </select>
-              <button id="btnAddCat" class="px-3 py-2 rounded bg-teal-500 text-black font-bold">افزودن دسته</button>
-            </div>
-            <ul id="catList" class="space-y-2 text-sm"></ul>
-          </div>
-
-          <!-- Products -->
-          <div class="rounded-2xl border border-white/10 p-4 bg-white/5">
-            <h3 class="font-bold mb-3">محصولات</h3>
-            <div class="grid md:grid-cols-2 gap-2">
-              <select id="prodCat" class="rounded bg-white/10 border border-white/10 px-3 py-2"></select>
-              <input id="prodName" placeholder="نام محصول" class="rounded bg-white/10 border border-white/10 px-3 py-2">
-              <input id="prodPrice" placeholder="قیمت (تومان)" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
-              <input id="prodDiscount" placeholder="تخفیف % (اختیاری)" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
-              <input id="prodIngr" placeholder="مواد تشکیل‌دهنده" class="rounded bg-white/10 border border-white/10 px-3 py-2">
-              <input id="prodTags" placeholder="تگ‌ها (مثلاً: cold,protein)" class="rounded bg-white/10 border border-white/10 px-3 py-2">
-              <input id="prodImgUrl" placeholder="لینک تصویر (اختیاری)" class="rounded bg-white/10 border border-white/10 px-3 py-2 md:col-span-2">
-              <div class="flex items-center gap-2 md:col-span-2">
-                <input id="prodImgFile" type="file" accept="image/*" class="text-xs">
-                <span class="text-xs text-white/60">یا لینک تصویر را وارد کنید</span>
-              </div>
-              <div class="md:col-span-2 flex gap-2">
-                <button id="btnAddProd" class="px-3 py-2 rounded bg-teal-500 text-black font-bold">افزودن/به‌روزرسانی</button>
-                <button id="btnClearProd" class="px-3 py-2 rounded bg-white/10">پاک‌سازی فرم</button>
-              </div>
-            </div>
-            <div class="mt-3">
-              <label class="text-sm">انتخاب محصول برای حذف:</label>
-              <select id="prodRemoveSel" class="mt-1 rounded bg-white/10 border border-white/10 px-3 py-2 w-full"></select>
-              <button id="btnRemoveProd" class="mt-2 px-3 py-2 rounded bg-red-500 text-white">حذف محصول</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Discounts -->
-        <div class="rounded-2xl border border-white/10 p-4 bg-white/5 mt-6">
-          <h3 class="font-bold mb-3">تخفیف گروهی</h3>
-          <div class="grid md:grid-cols-4 gap-2">
-            <select id="discCat" class="rounded bg-white/10 border border-white/10 px-3 py-2"></select>
-            <input id="discPercent" placeholder="درصد تخفیف" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
-            <button id="btnApplyDisc" class="px-3 py-2 rounded bg-yellow-300 text-black font-bold">اعمال</button>
-            <button id="btnClearDisc" class="px-3 py-2 rounded bg-white/10">حذف تخفیف‌ها</button>
-          </div>
-        </div>
-      </div>
+      <div id="adminContent" class="modal-body"></div>
     </div>
-  </section>
+  </dialog>
 
-  <!-- Footer (address & info) -->
+  <!-- Footer -->
   <footer id="contact" class="border-t border-white/10">
     <div class="max-w-6xl mx-auto px-4 py-8 text-white/80 text-sm grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
@@ -200,6 +124,9 @@
     </div>
   </footer>
 
-  <script type="module" src="assets/main.js?v=20250829"></script>
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script type="module" src="assets/main.js?v=20250830"></script>
 </body>
 </html>
