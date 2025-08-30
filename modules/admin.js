@@ -2,14 +2,13 @@ import { sha256, slugify, toNumber, toast } from './utils.js';
 import { loadMenu, saveMenu } from './data.js';
 import { applyFilters } from './filters.js';
 
-// Auth (static demo)
+// Auth
 const ADMIN_USER = 'behzadcafeadmin';
 const ADMIN_PASS_SHA256 = '763f157136c33e6983a3e578d5596db51e3925771fa26de69dbec6e426d90333';
 const SESSION_KEY = 'maxcafe_admin_session_v1';
 
 function isLoggedIn(){ return localStorage.getItem(SESSION_KEY) === '1'; }
 function setLoggedIn(v){ v ? localStorage.setItem(SESSION_KEY,'1') : localStorage.removeItem(SESSION_KEY); }
-
 function el(id){ return document.getElementById(id); }
 
 function renderLogin(){
@@ -35,16 +34,16 @@ function renderDashboard(menu){
   const catOptions = menu.map(c=>`<option value="${c.id}">${c.title}</option>`).join('');
   return `
   <div class="flex items-center gap-2 mb-4">
-    <button id="adminBack" class="btn ghost">بازگشت</button>
+    <button id="adminBack" class="btn ghost">بستن</button>
     <button id="adminLogout" class="btn ghost">خروج</button>
-    <span class="text-sm text-white/60">تغییرات بلافاصله اعمال می‌شوند.</span>
+    <span class="text-xs sm:text-sm text-white/60">تغییرات بلافاصله اعمال می‌شوند.</span>
   </div>
 
-  <div class="grid md:grid-cols-2 gap-6">
+  <div class="grid md:grid-cols-2 gap-4 md:gap-6">
     <!-- Categories -->
-    <div class="rounded-2xl border border-white/10 p-4 bg-white/5">
-      <h3 class="font-bold mb-3">دسته‌بندی‌ها</h3>
-      <div class="flex gap-2 mb-3">
+    <div class="rounded-2xl border border-white/10 p-3 sm:p-4 bg-white/5">
+      <h3 class="font-bold mb-2 sm:mb-3">دسته‌بندی‌ها</h3>
+      <div class="flex gap-2 mb-2 sm:mb-3">
         <input id="newCatTitle" placeholder="عنوان دسته" class="w-full rounded bg-white/10 border border-white/10 px-3 py-2 outline-none">
         <select id="newCatTag" class="rounded bg-white/10 border border-white/10 px-3 py-2">
           <option value="hot">گرم</option><option value="cold">سرد</option>
@@ -52,31 +51,31 @@ function renderDashboard(menu){
         </select>
         <button id="btnAddCat" class="btn">افزودن</button>
       </div>
-      <ul id="catList" class="space-y-2 text-sm"></ul>
+      <ul id="catList" class="space-y-2 text-sm max-h-56 overflow-auto no-scrollbar"></ul>
     </div>
 
     <!-- Products -->
-    <div class="rounded-2xl border border-white/10 p-4 bg-white/5">
-      <h3 class="font-bold mb-3">محصولات</h3>
-      <div class="grid md:grid-cols-2 gap-2">
+    <div class="rounded-2xl border border-white/10 p-3 sm:p-4 bg-white/5">
+      <h3 class="font-bold mb-2 sm:mb-3">محصولات</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <select id="prodCat" class="rounded bg-white/10 border border-white/10 px-3 py-2">${catOptions}</select>
         <input id="prodName" placeholder="نام محصول" class="rounded bg-white/10 border border-white/10 px-3 py-2">
         <input id="prodPrice" placeholder="قیمت (تومان)" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
         <input id="prodDiscount" placeholder="تخفیف % (اختیاری)" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
         <input id="prodIngr" placeholder="مواد تشکیل‌دهنده" class="rounded bg-white/10 border border-white/10 px-3 py-2">
         <input id="prodTags" placeholder="تگ‌ها (مثلاً: cold,protein)" class="rounded bg-white/10 border border-white/10 px-3 py-2">
-        <input id="prodImgUrl" placeholder="لینک تصویر (اختیاری)" class="rounded bg-white/10 border border-white/10 px-3 py-2 md:col-span-2">
-        <div class="flex items-center gap-2 md:col-span-2">
+        <input id="prodImgUrl" placeholder="لینک تصویر (اختیاری)" class="rounded bg-white/10 border border-white/10 px-3 py-2 sm:col-span-2">
+        <div class="flex items-center gap-2 sm:col-span-2">
           <input id="prodImgFile" type="file" accept="image/*" class="text-xs">
-          <span class="text-xs text-white/60">یا لینک تصویر را وارد کنید</span>
+          <span class="text-[11px] sm:text-xs text-white/60">یا لینک تصویر را وارد کنید</span>
         </div>
-        <div class="md:col-span-2 flex gap-2">
+        <div class="sm:col-span-2 flex gap-2">
           <button id="btnAddProd" class="btn">ذخیره/به‌روزرسانی</button>
           <button id="btnClearProd" class="btn ghost">پاک‌سازی فرم</button>
         </div>
       </div>
       <div class="mt-3">
-        <label class="text-sm">انتخاب محصول برای حذف:</label>
+        <label class="text-xs sm:text-sm">انتخاب محصول برای حذف:</label>
         <select id="prodRemoveSel" class="mt-1 rounded bg-white/10 border border-white/10 px-3 py-2 w-full"></select>
         <button id="btnRemoveProd" class="mt-2 btn" style="background:#ef4444;color:#fff">حذف</button>
       </div>
@@ -84,9 +83,9 @@ function renderDashboard(menu){
   </div>
 
   <!-- Discounts -->
-  <div class="rounded-2xl border border-white/10 p-4 bg-white/5 mt-6">
-    <h3 class="font-bold mb-3">تخفیف گروهی</h3>
-    <div class="grid md:grid-cols-4 gap-2">
+  <div class="rounded-2xl border border-white/10 p-3 sm:p-4 bg-white/5 mt-4 md:mt-6">
+    <h3 class="font-bold mb-2 sm:mb-3">تخفیف گروهی</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
       <select id="discCat" class="rounded bg-white/10 border border-white/10 px-3 py-2">${catOptions}</select>
       <input id="discPercent" placeholder="درصد تخفیف" class="rounded bg-white/10 border border-white/10 px-3 py-2" inputmode="numeric">
       <button id="btnApplyDisc" class="btn" style="background:#fde047;color:#000">اعمال</button>
@@ -100,7 +99,7 @@ function bindDashboardEvents(menu){
     const ul = el('catList'); if(!ul) return;
     ul.innerHTML = (menu||[]).map(c=>
       `<li class="flex items-center justify-between gap-2 rounded bg-white/5 border border-white/10 p-2">
-        <div class="text-sm">${c.title} <span class="text-white/50">(${(c.items||[]).length} محصول)</span></div>
+        <div class="text-sm truncate">${c.title} <span class="text-white/50">(${(c.items||[]).length} محصول)</span></div>
         <button data-cid="${c.id}" class="btn ghost text-xs">حذف</button>
       </li>`).join('');
     ul.querySelectorAll('button[data-cid]').forEach(b=>{
@@ -114,8 +113,8 @@ function bindDashboardEvents(menu){
   };
 
   const fillSelectors = ()=>{
-    const prodCat = el('prodCat'); const discCat = el('discCat');
     const opts = (menu||[]).map(c=>`<option value="${c.id}">${c.title}</option>`).join('');
+    const prodCat = el('prodCat'); const discCat = el('discCat');
     if(prodCat) prodCat.innerHTML = opts;
     if(discCat) discCat.innerHTML = opts;
   };
@@ -155,7 +154,7 @@ function bindDashboardEvents(menu){
     if(!catId || !name || price<=0){ toast('نام/قیمت/دسته را درست وارد کنید', false); return; }
 
     const cat = menu.find(c=>c.id===catId); if(!cat){ toast('دسته نامعتبر', false); return; }
-    const id = slugify(name);
+    const id  = slugify(name);
     if(!cat.items) cat.items=[];
     const idx = cat.items.findIndex(i=>i.id===id);
     const item = { id, name, price, discount:disc||0, ingredients:ingr, tags, img };
@@ -193,11 +192,9 @@ function bindDashboardEvents(menu){
     toast('همه تخفیف‌ها حذف شد');
   });
 
-  // header buttons
   el('adminBack')?.addEventListener('click', ()=> closeAdminModal());
   el('adminLogout')?.addEventListener('click', ()=>{ setLoggedIn(false); toast('خارج شدی'); openAdminModal(true); });
 
-  // initial lists
   listCats(); fillSelectors(); fillRemoveSelect();
 }
 
@@ -206,7 +203,7 @@ function render(content){ const c = el('adminContent'); if(c) c.innerHTML = cont
 export function openAdminModal(forceLogin=false){
   const d = el('adminModal'); if(!d) return;
   el('adminTitle').textContent = 'پنل ادمین';
-  d.showModal(); if(location.hash !== '#admin') history.replaceState(null,'','#admin');
+  if(!d.open) d.showModal();
 
   if(!isLoggedIn() || forceLogin){
     render(renderLogin());
@@ -231,11 +228,7 @@ export function openAdminModal(forceLogin=false){
 
 export function closeAdminModal(){
   const d = el('adminModal'); if(!d) return;
-  d.close();
-  if(location.hash === '#admin') history.replaceState(null,'','#top');
+  if(d.open) d.close();
 }
 
-export function initAdminModal(){
-  el('adminClose')?.addEventListener('click', ()=> closeAdminModal());
-  // اگر از قبل لاگین بوده، هیچ UI نشون نمی‌دیم تا وقتی مودال باز بشه
-}
+export function initAdminModal(){ document.getElementById('adminClose')?.addEventListener('click', ()=> closeAdminModal()); }

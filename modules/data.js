@@ -1,4 +1,4 @@
-const KEY = 'maxcafe_menu_v3';
+const KEY = 'maxcafe_menu_v4'; // bump to avoid old cache
 
 function seedData(){
   return [
@@ -26,9 +26,8 @@ export async function loadMenu(){
     localStorage.setItem(KEY, JSON.stringify(seeded));
     return seeded;
   }
-  try{
-    return JSON.parse(raw);
-  }catch(e){
+  try{ return JSON.parse(raw); }
+  catch(e){
     const seeded = seedData();
     localStorage.setItem(KEY, JSON.stringify(seeded));
     return seeded;

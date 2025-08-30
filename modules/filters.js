@@ -39,5 +39,5 @@ export function initFilters(){
   }));
 
   const s = document.getElementById('search');
-  if (s) s.addEventListener('input', ()=> applyFilters());
+  if (s) s.addEventListener('input', ()=> applyFilters(), {passive:true});
 }

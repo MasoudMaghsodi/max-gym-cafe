@@ -1,10 +1,6 @@
 import { currency, priceWithDiscount } from './utils.js';
 
-export function renderShortcuts(menu){
-  const holder = document.getElementById("catShortcuts");
-  if(!holder) return;
-  holder.innerHTML = menu.map(c=> `<a href="#${c.id}" class="chip reveal fade">${c.title}</a>`).join('');
-}
+export function renderShortcuts(menu){ /* optional in this layout */ }
 
 function badge(tag){
   const map={
@@ -20,23 +16,23 @@ function badge(tag){
 function cardHTML(item){
   const {final, orig}=priceWithDiscount(item.price,item.discount||0);
   const disc=item.discount||0;
-  const origHtml = orig ? `<span class="text-sm text-black/60 line-through-thin">${currency.format(orig)} تومان</span>` : '';
-  const discBadge = disc>0 ? `<span class="text-xs font-bold px-2 py-1 rounded-full" style="background:#FF4D4D;color:#fff">%${disc}</span>` : '';
-  const tagsHtml = (item.tags||[]).map(t=>{const b=badge(t);return b?`<span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${b[1]}">${b[0]}</span>`:''}).join(' ');
+  const origHtml = orig ? `<span class="text-xs sm:text-sm text-black/60 line-through-thin">${currency.format(orig)} تومان</span>` : '';
+  const discBadge = disc>0 ? `<span class="text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full" style="background:#FF4D4D;color:#fff">%${disc}</span>` : '';
+  const tagsHtml = (item.tags||[]).map(t=>{const b=badge(t);return b?`<span class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold ${b[1]}">${b[0]}</span>`:''}).join(' ');
   return `
   <button class="text-right group rounded-2xl bg-white text-black border border-black/10 card-hover overflow-hidden" onclick='openProduct(${JSON.stringify(item)})'>
-    <div class="w-full h-40 md:h-48 bg-gray-100 relative">
-      <img src="${item.img||''}" class="w-full h-full object-cover" loading="lazy" decoding="async" alt="${item.name}" onerror="this.classList.add('hidden')"/>
+    <div class="w-full h-36 sm:h-44 bg-gray-100 relative">
+      <img src="${item.img||''}" class="w-full h-full object-cover" width="600" height="380" loading="lazy" decoding="async" alt="${item.name}" onerror="this.classList.add('hidden')"/>
       <div class="absolute top-2 left-2 flex gap-1">${discBadge}</div>
     </div>
-    <div class="p-4">
+    <div class="p-3 sm:p-4">
       <div class="flex items-start justify-between gap-2">
-        <h4 class="text-lg font-bold leading-7">${item.name}</h4>
+        <h4 class="text-base sm:text-lg font-bold leading-7">${item.name}</h4>
         <div class="flex gap-1">${tagsHtml}</div>
       </div>
-      <p class="text-sm text-black/70 mt-1">${item.ingredients||''}</p>
-      <div class="mt-3 flex items-baseline gap-2">
-        <div class="text-lg font-extrabold tabular-nums">${currency.format(final)} <span class="text-sm font-normal">تومان</span></div>
+      <p class="text-xs sm:text-sm text-black/70 mt-1 line-clamp-2">${item.ingredients||''}</p>
+      <div class="mt-2 sm:mt-3 flex items-baseline gap-2">
+        <div class="text-base sm:text-lg font-extrabold tabular-nums">${currency.format(final)} <span class="text-xs sm:text-sm font-normal">تومان</span></div>
         ${origHtml}
       </div>
     </div>
@@ -50,11 +46,11 @@ export function renderMenu(menu){
     const sec=document.createElement('section'); sec.id=cat.id;
     sec.className = "reveal";
     sec.innerHTML=`
-      <div class="flex items-end justify-between mb-3">
-        <div><h3 class="text-2xl md:text-3xl font-extrabold">${cat.icon||''} ${cat.title}</h3></div>
-        <a href="#top" class="text-sm text-white/70 hover:text-white">بازگشت به بالا</a>
+      <div class="flex items-end justify-between mb-2 sm:mb-3">
+        <div><h3 class="text-xl sm:text-2xl md:text-3xl font-extrabold">${cat.icon||''} ${cat.title}</h3></div>
+        <a href="#top" class="text-xs sm:text-sm text-white/70 hover:text-white whitespace-nowrap">بازگشت به بالا</a>
       </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         ${cat.items.map(it=> `<div class="reveal">${cardHTML(it)}</div>`).join('')}
       </div>`;
     wrap.appendChild(sec);
