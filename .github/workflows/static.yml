@@ -30,12 +30,17 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      # تغییر مهم: استفاده از install به جای ci برای جلوگیری از خطای Lockfile
       - name: Install dependencies
         run: npm install
 
       - name: Build
         run: npm run build
+        env:
+          VITE_ADMIN_USER: ${{ secrets.VITE_ADMIN_USER }}
+          VITE_ADMIN_PASS_HASH: ${{ secrets.VITE_ADMIN_PASS_HASH }}
+          VITE_REPO_OWNER: ${{ secrets.VITE_REPO_OWNER }}
+          VITE_REPO_NAME: ${{ secrets.VITE_REPO_NAME }}
+          VITE_GITHUB_TOKEN: ${{ secrets.VITE_GITHUB_TOKEN }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
